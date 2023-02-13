@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport"
+         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <link rel="stylesheet" href="css/main.css">
+   <script defer src="js/vue.js"></script>
+   <script defer src="js/main.js"></script> <!-- Атрибут defer сообщает браузеру, что он должен продолжать обрабатывать страницу и загружать скрипт в фоновом режиме -->
+   <title>Product App</title>
+</head>
+<body>
+    <div id="app">
+        <div class="product">
+            <div class="product-image">
+                <img :src="image" :alt="altText"/>
+            </div>
+            <div class="product-info">
+                <h1>{{ brand + ' ' + product }}</h1>
+                <!-- <p v-if="inStock">In Stock</p> -->
+                <p v-if="inventory > 10">В наличии: {{inventory}} товаров</p>
+                <p v-else-if="inventory <= 10 && inventory > 0">Почти распроданно : {{inventory}} товаров</p>
+                <p :class="{ OutOfInventory: inventory <= 0 }" v-else="inventory">Нет в наличии</p>
+                <span v-show="OnSale && inventory > 0">Скидка</span> 
+                <p>Состав:</p>
+
+                <ul>
+                     <li v-for="detail in details"> {{ detail }}</li>  <!-- v-for - перебирает массив -->
+                 </ul>
+
+                 <p>Размеры:</p>
+
+                 <ul>
+                    <li v-for="size in sizes "> {{ size }}</li>
+                </ul>
+
+                <div
+                class="color-box"
+                v-for="variant in variants"
+                :key="variant.variantId"
+                :style="{ backgroundColor:variant.variantColor }"    
+                @mouseover="updateProduct(variant.variantImage)">  <!-- @ = v-on -->
+                </div>
+
+                 <div class="cart">
+                    <p>Товаров в корзине: {{ cart }}</p>
+                    <button :disabled="cart <= 0" :class="{ disabledButton: cart <= 0 }" @click ="deleteFromCart(cart)">Удалить товар</button>
+                    
+                 </div>
+
+                <button :disabled="inventory <= 0" :class="{ disabledButton: inventory <= 0 }" @click="addToCart(cart)">Добавить в корзину</button>
+            </div>
+        </div>
+     </div>
+</body>
