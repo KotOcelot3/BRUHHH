@@ -17,15 +17,18 @@ Vue.component('product', {
 
             <ul>
                 <li v-for="detail in details"> {{ detail }}</li>  <!-- v-for - перебирает массив -->
-                <p></p>
+                <p>Доставка: {{ shipping }}</p>
+
             </ul>
 
             <p>Размеры:</p>
+            
+            
 
             <ul>
                 <li v-for="size in sizes "> {{ size }}</li>
             </ul>
-
+            
             <div
             class="color-box"
             v-for="(variant, index) in variants"
@@ -33,7 +36,7 @@ Vue.component('product', {
             :style="{ backgroundColor:variant.variantColor }"  
             @mouseover="updateProduct(index)">  <!-- @ = v-on -->
             </div>
-
+            <p>Доставка: {{shipping}}</p>
             <div class="cart">
                 <p>Товаров в корзине: {{ cart }}</p>
                 <button :disabled="cart <= 0" :class="{ disabledButton: cart <= 0 }" @click ="deleteFromCart(cart)">Удалить товар</button>
@@ -51,7 +54,7 @@ Vue.component('product', {
         altText: "A pair of socks",
         // inStock: false, 
         brand: 'Vue Mastery',
-        inventory: 12,
+        // inventory: 12,
         OnSale: true,
         details: ['80% cotton', '20% polyester', 'Gender-neutral'],
         variants: [{variantId: 2234, variantColor: 'green', variantImage: "./assets/vmSocks-green-onWhite.jpg", variantQuantity: 10}, 
@@ -60,23 +63,29 @@ Vue.component('product', {
         cart: 1,
         }
     },
+    props: {
+        premium: {
+            type: Boolean,
+            required: true
+        }
+    },
+    
     methods: {
         addToCart() {
             this.cart += 1
-            this.inventory -= 1
+            this.variants[this.selectedVariant].variantQuantity -= 1
         } ,
     
         deleteFromCart() {
             this.cart -= 1
-            this.inventory += 1
-            },
-            updateProduct(index) {
-                this.selectedVariant = index;
-                console.log(index);
-             }
+            this.variants[this.selectedVariant].variantQuantity += 1
+        },
+        updateProduct(index) {
+            this.selectedVariant = index;
+            console.log(index);
+            }
     },
-    computed: 
-    {
+    computed: {
         image() {
             return this.variants[this.selectedVariant].variantImage;
          },
@@ -84,18 +93,40 @@ Vue.component('product', {
         title() {
             return this.brand + ' ' + this.product;
         },
-        inStock(){
+        inventory(){
             return this.variants[this.selectedVariant].variantQuantity
          },
          
         sale() {
               return ' Распродажа!'
+        },
+        shipping() {
+            if (this.premium) {
+                return "Бесплатно";
+            } else {
+                return 2.99
+            }
         }
-    }
+    },
+        
+ })
+
+ Vue.component('product-details', {
+    template: `
+        <ul>
+            <li v-for="detail in details"> {{ detail }}</li>
+        </ul>
+        `,
+         data() {
+            return {
+                details: ['80% cotton', '20% polyester', 'Gender-neutral'],
+            }
+        }
  })
 
  let app = new Vue({
-    el: '#app',              
- })
- 
- 
+    el: '#app',
+    data: {
+        premium: true
+    }
+})
