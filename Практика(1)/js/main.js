@@ -109,7 +109,11 @@ Vue.component('product', {
         }
     },
         
- })
+ }),
+
+ 
+ 
+
 
  Vue.component('product-details', {
     template: `
@@ -121,12 +125,45 @@ Vue.component('product', {
             return {
                 details: ['80% cotton', '20% polyester', 'Gender-neutral'],
             }
+        },
+
+        methods:{
+            onSubmit() {
+                let productReview = {
+                    name: this.name,
+                    review: this.review,
+                    rating: this.rating
+                }
+                this.name = null
+                this.review = null
+                this.rating = null
+            }
         }
  })
 
- let app = new Vue({
+Vue.component('product-review', {
+    template: `
+    <input>
+  `,
+    data() {
+        return {
+            name: null,
+            review: null,
+            rating: null
+        }
+    }
+    
+})
+
+let app = new Vue({
     el: '#app',
     data: {
-        premium: true
+        premium: true,
+    cart: []
+    },
+    methods: {
+        updateCart(id) {
+            this.cart.push(id);
+        }
     }
-})
+    })
