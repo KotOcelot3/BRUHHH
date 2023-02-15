@@ -184,6 +184,7 @@ Vue.component('product-details', {
                     picked: this.picked
                 }
                 eventBus.$emit('review-submitted', productReview)
+                this.errors.length = 0
                 this.name = null
                 this.review = null
                 this.rating = null
