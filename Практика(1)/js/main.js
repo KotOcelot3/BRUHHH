@@ -8,10 +8,10 @@ Vue.component('product', {
             </div>
                 <div class="product-info">
                         <h1>{{ title }}</h1>
-                        <p v-if="inventory > 10">В наличии: {{inventory}} товаров</p>
-                        <p v-else-if="inventory <= 10 && inventory > 0">Почти распроданно : {{inventory}} товаров</p>
-                        <p :class="{ OutOfInventory: inventory <= 0 }" v-else="inventory">Нет в наличии</p>
-                        <span v-show="OnSale && inventory > 0">{{ Sale }}</span> 
+                        <p v-if=" inStock > 10">В наличии: {{inStock}} товаров</p>
+                        <p v-else-if="inStock <= 10 && inStock > 0">Почти распроданно : {{inStock}} товаров</p>
+                        <p :class="{ OutOfinStock: inStock <= 0 }" v-else="inStock">Нет в наличии</p>
+                        <span v-show="OnSale && inStock > 0">{{ Sale }}</span> 
                         <p>Состав:</p>
                         <product-details></product-details>
                         <p>Размеры:</p>
@@ -26,12 +26,9 @@ Vue.component('product', {
                         :style="{ backgroundColor:variant.variantColor }"    
                         @mouseover="updateProduct(index)">  <!-- @ = v-on -->
                 </div>
-            <div class="cart">
-                <p>Товаров в корзине: {{ cart }}</p>
-                <button :disabled="cart <= 0" :class="{ disabledButton: cart <= 0 }" @click ="deleteFromCart(cart)">Удалить товар</button>
+            <button @click="removeCart" :disabled="inStock <= 0" :class="{ disabledButton: inStock <= 0 }">Удалить товар</button>
                 
-            </div>
-            <button :disabled="inventory <= 0" :class="{ disabledButton: inventory <= 0 }" @click="addToCart(cart)">Добавить в корзину</button>
+            <button @click="addToCart" :disabled="inStock <= 0" :class="{ disabledButton: inStock <= 0 }">Добавить в корзину</button>
                
              
         <product-tabs :reviews="reviews" :premium="premium"></product-tabs>
@@ -45,7 +42,6 @@ Vue.component('product', {
             selectedVariant: 0,
             altText: "A pair of socks",
             brand: 'Vue Mastery',
-            cart: 0,
             OnSale: true,
             reviews: [],
             details: ['80% cotton', '20% polyester', 'Gender-neutral'],
@@ -54,7 +50,7 @@ Vue.component('product', {
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
         }
     },
-    props: {
+    props: { 
         premium: {
             type: Boolean,
             required: true
@@ -62,13 +58,14 @@ Vue.component('product', {
     }, 
     methods: {      
         addToCart() {
-            this.cart += 1
+            this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
             this.variants[this.selectedVariant].variantQuantity -= 1
         },
     
-        deleteFromCart() {
-            this.cart -= 1
+        removeCart() {
+            this.$emit('return-to-cart', this.variants[this.selectedVariant].variantId);
             this.variants[this.selectedVariant].variantQuantity += 1
+           
             },
     
         updateProduct(index) {
@@ -79,7 +76,9 @@ Vue.component('product', {
     mounted() {
         eventBus.$on('review-submitted', productReview => {
             this.reviews.push(productReview)
-        })
+        }) 
+
+        
     },
     
     computed: {
@@ -89,13 +88,13 @@ Vue.component('product', {
         image() {
             return this.variants[this.selectedVariant].variantImage;
         }, 
-        inventory(){
+        inStock(){
             return this.variants[this.selectedVariant].variantQuantity
         },
         Sale(){
             return "Проходит распродажа";
         },
-        shipping() {  //Если в параметре this.premium хранится true — вычисляемое свойство shipping вернёт Free. В противном случае оно вернёт 2.99.
+        shipping() {  
             if (this.premium) {
                 return "бесплатно";
             } else {
@@ -131,10 +130,10 @@ Vue.component('product-details', {
   <div class="picked">
   
   <p>Рекомендовали-бы этот продукт?</p>
-   <input type="radio" id="Yes" value="Yes" name="picked"  v-model="picked" />
+   <input type="radio" id="Yes" value="ДА" name="picked"  v-model="picked" />
           <label for="Yes">Да</label>
     <br />
-    <input type="radio" id="No" value="No" name="picked" v-model="picked" />
+    <input type="radio" id="No" value="НЕТ" name="picked" v-model="picked" />
           <label for="No">Нет</label>
     <br />
   
@@ -168,11 +167,11 @@ Vue.component('product-details', {
   `,
     data() {
         return {
+            picked: '',
             name: null,
             review: null,
             rating: null,
             errors: [],
-            picked: '',
         }
     },
     methods:{
@@ -222,7 +221,7 @@ Vue.component('product-tabs', {
                       <p>Название:{{ review.name }}</p>
                       <p>Рейтинг: {{ review.rating }}</p>
                       <p>Комментарий:{{ review.review }}</p>
-                      <span>Вопрос: {{ review.picked }}</span>
+                      <span>Рекомендация: {{ review.picked }}</span>
                       </li>
                     </ul>
         </div>
@@ -244,7 +243,7 @@ Vue.component('product-tabs', {
     data() {
         return {
             tabs: ['Отзывы', 'Оставить отзыв', 'Доставка', 'Информация'],
-            selectedTab: 'Отзывы'  // устанавливается с помощью @click
+            selectedTab: 'Отзывы'  
         }
     },
     props: {
@@ -272,11 +271,33 @@ Vue.component('product-tabs', {
 
 })
 
+Vue.component('cart', {
+    template: `
+    <div class="cart">
+        <p>Товаров в корзине: {{ cart }}</p>
+    </div>
+  `,
+    data() {
+        return {
+            details: ['80% cotton', '20% polyester', 'Gender-neutral'],
+        }
+    }
+ })
 
  let app = new Vue({
     el: '#app', 
     data: {
         premium: true,
+        cart: []
     },
-            
+    methods: {
+        updateCart(id) {
+            this.cart.push(id);
+        },
+        returnCart() {
+            this.cart.pop();
+        }
+    },
+
+              
  })

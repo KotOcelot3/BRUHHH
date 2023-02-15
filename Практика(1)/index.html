@@ -11,8 +11,13 @@
    <title>Product App</title>
 </head>
 <body>
-    <div id="app">
-        <product :premium="premium"></product>
+   <div id="app">
+      <div class="cart">
+            <p>Корзина:
+                {{ cart }}
+            </p>
+        </div>
+            <product @add-to-cart="updateCart" @return-to-cart="returnCart" :premium="premium"></product>
      </div>
      
 </body>
