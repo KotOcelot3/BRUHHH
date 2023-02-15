@@ -15,9 +15,11 @@ Vue.component('product', {
                         <p>Состав:</p>
                         <product-details></product-details>
                         <p>Размеры:</p>
-                        <ul>
-                            <li v-for="size in sizes "> {{ size }}</li>
-                        </ul>
+                        
+                        <form>
+                            <label v-for="size in sizes">{{ size }}
+                            <input type="radio" name="size"></label>
+                        </form>
                         
                         <div
                         class="color-box"
