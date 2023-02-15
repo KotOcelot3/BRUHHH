@@ -190,6 +190,7 @@ Vue.component('product-details', {
                 this.rating = null
                 this.picked = null
             } else {
+                this.errors.length = 0
                 if (!this.name) this.errors.push("Необходимо название")
                 if (!this.review) this.errors.push("Необходим комментарий")
                 if (!this.rating) this.errors.push("Необходима оценка")
