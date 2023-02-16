@@ -13,7 +13,10 @@ Vue.component('product', {
                         <p :class="{ OutOfinStock: inStock <= 0 }" v-else="inStock">Нет в наличии</p>
                         <span v-show="OnSale && inStock > 0">{{ Sale }}</span> 
                         <p>Состав:</p>
-                        <product-details></product-details>
+                         <select>
+                        <option> <product-details></product-details></option>
+                        <option> <product-detailss></product-detailss></option>
+                        </select>
                         <p>Размеры:</p>
                         
                         <form>
@@ -32,6 +35,7 @@ Vue.component('product', {
                 
             <button @click="addToCart" :disabled="inStock <= 0" :class="{ disabledButton: inStock <= 0 }">Добавить в корзину</button>
                
+               <a href="https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks" data-toggle="tooltip" title="Больше товаров" class="text-primary">{{ link }}</a></p>
              
         <product-tabs :reviews="reviews" :premium="premium"></product-tabs>
         </div>
